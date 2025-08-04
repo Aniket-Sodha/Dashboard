@@ -10,6 +10,7 @@ let Register = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [Username, setUsername] = useState("");
   const nv = useNavigate();
   const isValidEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
