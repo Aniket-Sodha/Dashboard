@@ -23,7 +23,7 @@ let Register = () => {
     const hasLowerCase = /[a-z]/.test(password);
     const hasDigit = /[0-9]/.test(password);
     const hasSymbol = /[^A-Za-z0-9]/.test(password);
-  
+
     return (
       password.length >= minLength &&
       hasUpperCase &&
@@ -32,41 +32,39 @@ let Register = () => {
       hasSymbol
     );
   };
-  
-
-
 
   // check
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-  
+
     if (!email || !password || !Username) {
       toast.error("Please fill all fields");
       return;
     }
-  
+
     if (!isValidEmail(email)) {
       toast.error("Invalid email");
       return;
     }
-  
+
     if (!isValidPassword(password)) {
       toast.error("Weak password");
       return;
     }
-  
-    createUserWithEmailAndPassword(auth, email, password)
+
+    await createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log("User signed up:", userCredential);
+        // console.log("User signed up:", userCredential);
         toast.success("Successfully Registered");
-        setTimeout(() => nv("/"), 1500);
+        setTimeout(() => {
+          nv("/");
+        }, 1000);
       })
       .catch((err) => {
-        console.error("Signup Error:", err);
+        // console.error("Signup Error:", err);
         toast.error(err.message);
       });
   };
-  
 
   return (
     <div className="h-full w-full flex justify-center items-center bg-gray-100 px-4 ">
@@ -87,7 +85,7 @@ let Register = () => {
           >
             <h2 className="text-4xl font-semibold text-white mb-2">Register</h2>
             <p className="text-sm text-white mb-6">Hii User 🖐️</p>
-            
+
             <input
               type="text"
               required
@@ -112,8 +110,7 @@ let Register = () => {
             />
 
             <button
-            onClick={handleRegister} 
-        
+              onClick={handleRegister}
               className="w-full max-w-md h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
             >
               Sign-In

@@ -56,7 +56,7 @@ let ShowCategory = () => {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="p-8 text-4xl text-center mb-5">Categories</div>
+      <div className="p-8 text-4xl text-center mb-5 ">Categories</div>
 
       <div className="grid grid-cols-5 w-3/4 bg-gray-200 text-gray-700 font-semibold px-4 py-2 text-center">
         <div>No.</div>

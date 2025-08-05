@@ -15,6 +15,7 @@ import { RiMenu3Fill } from "react-icons/ri";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [currentIndex, setCurrentIndex] = useState(null);
   const nv = useNavigate();
@@ -40,7 +41,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { icon: <AiFillProduct />, name: "Products", navigate: "/products" },
     { icon: <FaBoxes />, name: "Category", navigate: "/category" },
     { icon: <IoNotifications />, name: "Notification" },
-    { icon: <IoMdSettings />, name: "Setting" },
+    { icon: <IoMdSettings />, name: "Setting" , navigate: "/setting" ,   },
   ];
 
   return (
@@ -64,6 +65,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <summary
                   onClick={() => {
                     setCurrentIndex(index);
+                    
                   }}
                   className={`flex justify-between items-center cursor-pointer py-2 px-2 ${
                     currentIndex === index && "text-white duration-150 px-6"
@@ -81,8 +83,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       onClick={() => {
                         nv(subItem.navigate);
                       }}
-                      className={`text-gray-400 hover:text-white cursor-pointer px-8`}
+                      className={` text-gray-400 hover:text-white cursor-pointer px-8`}
                     >
+             
                       {subItem.name}
                     </li>
                   ))}

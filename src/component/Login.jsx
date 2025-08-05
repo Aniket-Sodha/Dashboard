@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
+  onAuthStateChanged,
 } from "firebase/auth";
 import { app } from "./firebase";
 import { FcGoogle } from "react-icons/fc";
@@ -18,29 +19,10 @@ let Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState();
   const nv = useNavigate();
-  const isValidEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  const isValidPassword = (password) => {
-    const minLength = 6;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasDigit = /[0-9]/.test(password);
-    const hasSymbol = /[^A-Za-z0-9]/.test(password);
-
-    return (
-      password.length >= minLength &&
-      hasUpperCase &&
-      hasLowerCase &&
-      hasDigit &&
-      hasSymbol
-    );
-  };
+  
 
   // check
-  const handleLogin = (e) => {
+  const handleLogin =  (e) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -48,23 +30,17 @@ let Login = () => {
       return;
     }
 
-    if (!isValidEmail(email)) {
-      toast.error("Invalid email");
-      return;
-    }
-    if (!isValidPassword(password)) {
-      toast.error("Invalid password");
-      return;
-    }
+ 
 
-    signInWithEmailAndPassword(auth, email, password)
+    // Sign in with email and password
+     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log("Logged in:", userCredential);
+        // console.log("Logged in:", userCredential);
         toast.success("Login successful");
-        setTimeout(() => nv("/Dashboard"), 1500);
+        setTimeout(() => nv("/Dashboard"), 1000);
       })
       .catch((err) => {
-        console.error("Login error:", err);
+        // console.error("Login error:", err);
         toast.error("Invalid email or password");
       });
   };
@@ -72,13 +48,15 @@ let Login = () => {
   let signInWithGoogle = () => {
     signInWithPopup(auth, googleProvider).then((result) => {
       toast.success("Login successful");
-      setTimeout(() => nv("/Dashboard"), 500);
+      setTimeout(() => nv("/Dashboard"), 1000);
     });
+    
+ 
   };
 
   return (
     <div className="h-full w-full flex justify-center items-center bg-gray-100 px-4 ">
-      <ToastContainer position="bottom-right" />
+            <ToastContainer position="bottom-right" />
       <div className="flex flex-col md:flex-row w-full max-w-5xl relative bg-white rounded-2xl overflow-hidden shadow-lg">
         <div className=" lg:w-1/2 md:w-full md:h-full ">
           <img
