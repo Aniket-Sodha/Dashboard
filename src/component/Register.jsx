@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import log from "./Images/Login.jpg";
 import { toast, ToastContainer } from "react-toastify";
-import { isValidElement, useState } from "react";
-import { getAuth, createUserWithEmailAndPassword , signInWithEmailAndPassword} from "firebase/auth";
+import { useState } from "react";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { app } from "./firebase";
 
 let Register = () => {
@@ -37,49 +37,36 @@ let Register = () => {
 
 
   // check
-  const handleLogin = (e) => {
-  e.preventDefault();
-
-  if (!email || !password) {
-    toast.error("Please enter both Email and Password");
-    return;
-  }
-
-  if (!isValidEmail(email)) {
-    toast.error("Please enter a valid email address");
-    return;
-  }
-
-  if (!isValidPassword(password)) {
-    toast.error(
-      "Password must be at least 6 characters and include uppercase, lowercase, number, and symbol"
-    );
-    return;
-  }
-
-  // Firebase: create account
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((value) => {
-      console.log("Firebase Response:", value);
-      toast.success("Successfully Signed Up");
-      setTimeout(() => nv("/Dashboard"), 1000);
-    })
-
-    // sign up
-    
-    signInWithEmailAndPassword(auth, email, password)
+  const handleRegister = (e) => {
+    e.preventDefault();
+  
+    if (!email || !password || !Username) {
+      toast.error("Please fill all fields");
+      return;
+    }
+  
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email");
+      return;
+    }
+  
+    if (!isValidPassword(password)) {
+      toast.error("Weak password");
+      return;
+    }
+  
+    createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log("User logged in:", userCredential);
-        toast.success("Successfully Logged In");
-        setTimeout(() => nv("/Dashboard"), 1000);
+        console.log("User signed up:", userCredential);
+        toast.success("Successfully Registered");
+        setTimeout(() => nv("/"), 1500);
       })
-      .catch((error) => {
-        console.error("Login error:", error);
-        toast.error("Invalid credentials or user does not exist");
+      .catch((err) => {
+        console.error("Signup Error:", err);
+        toast.error(err.message);
       });
- 
-};
-
+  };
+  
 
   return (
     <div className="h-full w-full flex justify-center items-center bg-gray-100 px-4 ">
@@ -96,10 +83,18 @@ let Register = () => {
         <div className="w-full lg:w-1/2  bg-[#48A3DA] p-8 flex">
           <form
             className=" flex-col justify-center items-center"
-            onSubmit={(e) => e.preventDefault()}
+            // onSubmit={(e) => e.preventDefault()}
           >
-            <h2 className="text-4xl font-semibold text-white mb-2">Log In</h2>
-            <p className="text-sm text-white mb-6">Welcome Back</p>
+            <h2 className="text-4xl font-semibold text-white mb-2">Register</h2>
+            <p className="text-sm text-white mb-6">Hii User 🖐️</p>
+            
+            <input
+              type="text"
+              required
+              placeholder="Username"
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full max-w-md h-10 px-3 mb-4 rounded-md border border-gray-300"
+            />
 
             <input
               type="email"
@@ -117,11 +112,11 @@ let Register = () => {
             />
 
             <button
-        onClick={handleLogin}
+            onClick={handleRegister} 
         
               className="w-full max-w-md h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
             >
-              SUBMIT
+              Sign-In
             </button>
           </form>
         </div>

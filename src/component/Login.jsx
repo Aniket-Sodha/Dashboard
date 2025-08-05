@@ -2,11 +2,18 @@ import { useNavigate } from "react-router-dom";
 import log from "./Images/Login.jpg";
 import { toast, ToastContainer } from "react-toastify";
 import { isValidElement, useState } from "react";
-import { getAuth, createUserWithEmailAndPassword , signInWithEmailAndPassword} from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { app } from "./firebase";
+import { FcGoogle } from "react-icons/fc";
 
 let Login = () => {
   const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState();
@@ -22,7 +29,7 @@ let Login = () => {
     const hasLowerCase = /[a-z]/.test(password);
     const hasDigit = /[0-9]/.test(password);
     const hasSymbol = /[^A-Za-z0-9]/.test(password);
-  
+
     return (
       password.length >= minLength &&
       hasUpperCase &&
@@ -31,59 +38,48 @@ let Login = () => {
       hasSymbol
     );
   };
-  
-
-
 
   // check
   const handleLogin = (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!email || !password) {
-    toast.error("Please enter both Email and Password");
-    return;
-  }
+    if (!email || !password) {
+      toast.error("Please enter email and password");
+      return;
+    }
 
-  if (!isValidEmail(email)) {
-    toast.error("Please enter a valid email address");
-    return;
-  }
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email");
+      return;
+    }
+    if (!isValidPassword(password)) {
+      toast.error("Invalid password");
+      return;
+    }
 
-  if (!isValidPassword(password)) {
-    toast.error(
-      "Password must be at least 6 characters and include uppercase, lowercase, number, and symbol"
-    );
-    return;
-  }
-
-  // Firebase: create account
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((value) => {
-      console.log("Firebase Response:", value);
-      toast.success("Successfully Signed Up");
-      setTimeout(() => nv("/Dashboard"), 1000);
-    })
-
-    // sign up
-    
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log("User logged in:", userCredential);
-        toast.success("Successfully Logged In");
-        setTimeout(() => nv("/Dashboard"), 1000);
+        console.log("Logged in:", userCredential);
+        toast.success("Login successful");
+        setTimeout(() => nv("/Dashboard"), 1500);
       })
-      .catch((error) => {
-        console.error("Login error:", error);
-        toast.error("Invalid credentials or user does not exist");
+      .catch((err) => {
+        console.error("Login error:", err);
+        toast.error("Invalid email or password");
       });
- 
-};
-
+  };
+  // Sign in with Google
+  let signInWithGoogle = () => {
+    signInWithPopup(auth, googleProvider).then((result) => {
+      toast.success("Login successful");
+      setTimeout(() => nv("/Dashboard"), 500);
+    });
+  };
 
   return (
     <div className="h-full w-full flex justify-center items-center bg-gray-100 px-4 ">
       <ToastContainer position="bottom-right" />
-      <div className="flex flex-col md:flex-row w-full max-w-5xl bg-white rounded-2xl overflow-hidden shadow-lg">
+      <div className="flex flex-col md:flex-row w-full max-w-5xl relative bg-white rounded-2xl overflow-hidden shadow-lg">
         <div className=" lg:w-1/2 md:w-full md:h-full ">
           <img
             src={log}
@@ -116,12 +112,26 @@ let Login = () => {
             />
 
             <button
-        onClick={handleLogin}
-        
-              className="w-full max-w-md h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              onClick={handleLogin}
+              className="w-full max-w-md h-10 font-medium mb-6 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
             >
-              SUBMIT
+              Log-In
             </button>
+            <div className="bg-gray-100 h-10  w-full max-w-md font-medium rounded-md flex justify-center items-center hover:bg-gray-200">
+              <button onClick={signInWithGoogle} className="flex gap-2">
+                <span>Sign In With Google</span>{" "}
+                <FcGoogle className="text-2xl " />
+              </button>
+            </div>
+            <div className="flex justify-center mt-10 gap-2">
+              <span>Not a member? </span>
+              <button
+                onClick={() => nv("/register")}
+                className="text-blue-100 cursor-grab"
+              >
+                Register Now
+              </button>
+            </div>
           </form>
         </div>
       </div>
