@@ -1,14 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import img from "./Images/admin.jpg";
 import { app } from "./firebase";
-import { doc, getDoc, updateDoc, getFirestore } from "firebase/firestore";
-
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { toast, ToastContainer } from "react-toastify";
 import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
+import { FaSquarePlus } from "react-icons/fa6";
 import axios from "axios";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
+import AddItemGroup from "./AddItemGroup";
+import AddBrand from "./AddBrand";
+import { Autocomplete, TextField } from "@mui/material";
 
-const UpdateProduct = () => {
+const AddProduct = () => {
   const [data, setData] = useState({
     itemGroup: "",
     brand: "",
@@ -25,69 +34,60 @@ const UpdateProduct = () => {
     retail: "",
     mrp: "",
     image: [],
+    ingredients: "",
+    benefits: "",
   });
-
+  // const [isOpen, setIsOpen] = useState(false);
   const db = getFirestore(app);
   const navigate = useNavigate();
   const { id } = useParams();
-  // code of image viewer
-  const [images, setImages] = useState([]); // Store image URLs
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [zoom, setZoom] = useState(1);
-  const inputref = useRef();
 
-  const [loading, setLoading] = useState(true);
+  //menu for item group and brand
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [itemGroup, setItemGroup] = useState(false);
+  const [brand, setBrand] = useState(false);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
-    if (!id) {
-      toast.error("No product ID");
-      navigate("/");
-      return;
-    }
-
-    const fetchProduct = async () => {
-      try {
+    if (id) {
+      const fetchProduct = async () => {
         const docRef = doc(db, "products", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const prod = docSnap.data();
           setData(prod);
           setImages(prod.image || []);
-        } else {
-          toast.error("Product not found");
-          navigate("/");
         }
-      } catch (error) {
-        toast.error("Error fetching product");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProduct();
+      };
+      fetchProduct();
+    }
   }, [id]);
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
-
-  const handleImageAdd = async(e) => {
+  const handleImageAdd = async (e) => {
     const file = e.target.files[0];
     if (file) {
-        try {
-            const formDataUpload = new FormData();
-            formDataUpload.append("file", file);
-            formDataUpload.append("upload_preset", "dashboard");
-      
-            const res = await axios.post(
-              "https://api.cloudinary.com/v1_1/djuvvurva/image/upload",
-              formDataUpload
-            );
-      
-            setImages((prev) => [...prev, res.data.url]);
-            setCurrentIndex(images.length);
-          } catch (err) {
-            console.error("Upload error:", err);
-            toast.error("Image upload failed");
-          }
+      try {
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", file);
+        formDataUpload.append("upload_preset", "dashboard");
+        const res = await axios.post(
+          "https://api.cloudinary.com/v1_1/djuvvurva/image/upload",
+          formDataUpload
+        );
+
+        setImages((prev) => [...prev, res.data.url]);
+        setCurrentIndex(images.length);
+      } catch (err) {
+        console.error("Upload error:", err);
+        toast.error("Image upload failed");
+      }
     }
   };
 
@@ -95,19 +95,19 @@ const UpdateProduct = () => {
     e.preventDefault();
     try {
       const payload = { ...data, image: images };
-      if (id) {
-        await updateDoc(doc(db, "products", id), payload);
-        toast.success("Product updated successfully");
-      } 
+
+      await addDoc(collection(db, "products"), payload);
+      toast.success("Product added successfully");
+
       setTimeout(() => {
-      clearData()
-      navigate("/products");},1000);
+        clearData();
+        navigate("/products");
+      }, 1500);
     } catch (error) {
       console.error("Error saving product:", error);
       toast.error("Failed to save product");
     }
   };
-
 
   let clearData = () => {
     setData({
@@ -126,18 +126,15 @@ const UpdateProduct = () => {
       retail: "",
       mrp: "",
       image: [],
+      ingredients: "",
+      benefits: "",
     });
   };
-
-  // Add image (simulate file picker)
-  const handleAdd = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setImages([...images, url]);
-      setCurrentIndex(images.length); // Move to the newly added image
-    }
-  };
+  // code of image viewer
+  const [images, setImages] = useState([]); // Store image URLs
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const inputref = useRef();
 
   // Delete current image
   const handleDelete = () => {
@@ -165,25 +162,64 @@ const UpdateProduct = () => {
     setZoom((prevZoom) => (prevZoom === 1 ? 1.5 : 1)); // toggle zoom
   };
 
-  // // code end of image viewer
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-  // };
-  console.log(data);
   return (
     <>
       <ToastContainer position="bottom-right" />
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-700 mt-4">
-        {id ? "Edit Product" : "Add Product"}
-      </h2>
-      <div
-        className="xl:w-full 
-       py-4 flex lg:flex-col bg-white px-2 rounded-2xl shadow-md "
-      >
+      <div className=" mb-6 mt-4 relative  select-none">
+        <h2 className="text-2xl  flex justify-center  font-bold text-gray-700">
+          {id ? "Edit Product" : "Add Product"}
+        </h2>
+        <div className="flex justify-end absolute -top-2 right-2 items-center">
+          <Button
+            id="basic-button"
+            aria-controls={open ? "basic-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? "true" : undefined}
+            onClick={handleClick}
+          >
+            <FaSquarePlus className="text-4xl flex justify-end" />
+          </Button>
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            slotProps={{
+              list: {
+                "aria-labelledby": "basic-button",
+              },
+            }}
+          >
+            <MenuItem
+              onClick={() => {
+                setItemGroup(true);
+                handleClose(); // optional: close menu when modal opens
+              }}
+            >
+              Item Group
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setBrand(true);
+                handleClose(); // optional: close menu when modal opens
+              }}
+            >
+              Brand
+            </MenuItem>
+            {/* <MenuItem onClick={handleClose}></MenuItem> */}
+          </Menu>
+          <AddItemGroup
+            open={itemGroup}
+            handleClose={() => setItemGroup(false)}
+          />
+          <AddBrand open={brand} handleClose={() => setBrand(false)} />
+        </div>
+      </div>
+
+      <div className="space-y-5 flex w-full xl:flex-row flex-col  rounded-2xl shadow-md px-3">
         <form onSubmit={handleSubmit}>
-          <div className="space-y-5 flex xl:flex-row flex-col ">
-            <div className=" xl:w-1/2 w-full 2xl:border-r-2 border-r-2">
+          <div className="space-y-5 flex w-full xl:flex-row flex-col ">
+            <div className=" xl:w-1/2 w-full border-0 lg:border-r-2">
               {/* Product Name */}
               <div className="flex xl:flex-row flex-col xl:items-center gap-3 mr-2 mb-4">
                 <label
@@ -192,17 +228,19 @@ const UpdateProduct = () => {
                 >
                   Item Group
                 </label>
-                <input
-                  type="text"
-                  name="itemGroup"
-                  value={data.itemGroup}
-                  onChange={(e) =>
-                    setData({ ...data, [e.target.name]: e.target.value })
-                  }
-                  id="itemGroup"
-                  placeholder="Enter Item Group"
-                  className=" lg:w-full p-2  border border-gray-300 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <Autocomplete
+                  className="w-full"
+                  id="free-solo-demo"
+                  size="small"
+                  freeSolo
+                  options={itemGroups.map((items) => items.itemName)}
+                  renderInput={(params) => (  
+                    <TextField {...params} placeholder="Enter Item Group" name="itemGroup" onChange={(e) =>
+                    setData({ ...data, [e.target.name]: e.target.value})
+                  } />
+                  )}
                 />
+                
               </div>
 
               {/* Description */}
@@ -213,16 +251,15 @@ const UpdateProduct = () => {
                 >
                   Brand{" "}
                 </label>
-                <input
-                  type="text"
-                  name="brand"
-                  value={data.brand}
-                  onChange={(e) =>
-                    setData({ ...data, [e.target.name]: e.target.value })
-                  }
-                  id="brand"
-                  placeholder="Enter Item Group"
-                  className=" w-full p-2 border border-gray-300 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <Autocomplete
+                  className="w-full"
+                  id="free-solo-demo"
+                  size="small"
+                  freeSolo
+                  options={brands.map((items) => items.brandName)}
+                  renderInput={(params) => (
+                    <TextField {...params} placeholder="Enter Brand" />
+                  )}
                 />
                 <label
                   className=" font-medium text-lg text-nowrap "
@@ -469,7 +506,7 @@ const UpdateProduct = () => {
                     value=""
                     ref={inputref}
                     accept="image/*"
-                    onChange={handleAdd}
+                    onChange={handleImageAdd}
                     className=" hidden"
                   />
 
@@ -508,6 +545,46 @@ const UpdateProduct = () => {
                 </div>
               </div>
               <hr />
+
+              <div className="flex xl:flex-row flex-col xl:items-center gap-3 mr-2 mb-4 mt-5">
+                <label
+                  className=" font-medium text-lg text-nowrap lg:w-36"
+                  htmlFor="ingredients"
+                >
+                  Ingredients
+                </label>
+                <input
+                  type="text"
+                  name="ingredients"
+                  value={data.ingredients}
+                  onChange={(e) =>
+                    setData({ ...data, [e.target.name]: e.target.value })
+                  }
+                  id="ingredients"
+                  placeholder="Enter Ingredients Group"
+                  className="w-full p-2  border border-gray-300 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex xl:flex-row flex-col xl:items-center gap-3 mr-2 mb-4">
+                <label
+                  className=" font-medium text-lg text-nowrap lg:w-36"
+                  htmlFor="benefits"
+                >
+                  Benefits
+                </label>
+                <input
+                  type="text"
+                  name="benefits"
+                  value={data.benefits}
+                  onChange={(e) =>
+                    setData({ ...data, [e.target.name]: e.target.value })
+                  }
+                  id="ingredients"
+                  placeholder="Enter Benefits Group"
+                  className="w-full p-2  border border-gray-300 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
           </div>
 
@@ -524,5 +601,19 @@ const UpdateProduct = () => {
     </>
   );
 };
+const itemGroups = [
+  { itemName: "T.V." },
+  { itemName: "Mobile" },
+  { itemName: "Cosmetics" },
+  { itemName: "Fashion" },
+];
 
-export default UpdateProduct;
+const brands = [
+  { brandName: "Samsang" },
+  { brandName: "Apple" },
+  { brandName: "Zara" },
+  { brandName: "L’Oréal" },
+  { brandName: "Sony" },
+];
+
+export default AddProduct;

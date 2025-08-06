@@ -32,7 +32,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       name: "Masters",
       submenu: [
         { name: "Add Category", navigate: "/addcategory" },
-        { name: "Add Product", navigate: "/addbrand" },
+        { name: "Add Product", navigate: "/addproduct" },
         { name: "Add Order", navigate: "/addorder" },
       ],
     },

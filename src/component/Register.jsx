@@ -52,8 +52,11 @@ let Register = () => {
       return;
     }
 
+    
+
     await createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        
         // console.log("User signed up:", userCredential);
         toast.success("Successfully Registered");
         setTimeout(() => {

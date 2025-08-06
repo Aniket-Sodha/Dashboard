@@ -79,13 +79,13 @@ const ShowOrder = () => {
               className="text-blue-600 hover:underline px-3"
               onClick={() => handleEdit(order.id)}
             >
-              <FaEdit/>
+              <FaEdit className="cursor-pointer text-xl" />
             </div>
             <div
               className="text-red-600 hover:underline px-3"
               onClick={() => handleDelete(order.id)}
             >
-              <MdDeleteForever/>
+              <MdDeleteForever className="cursor-pointer text-xl"/>
             </div>
           </div>
 )        ))}

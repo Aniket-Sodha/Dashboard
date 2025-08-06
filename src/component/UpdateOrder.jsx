@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { app } from "./firebase";
+import { toast, ToastContainer } from "react-toastify";
 
 const db = getFirestore(app);
 
@@ -44,7 +45,7 @@ const UpdateOrder = () => {
     try {
       const docRef = doc(db, "orders", id);
       await updateDoc(docRef, formData);
-      alert("Order updated successfully!");
+      toast.success("Order updated successfully!");
       navigate("/updateorder");
     } catch (error) {
       console.error("Error updating order:", error);
@@ -53,6 +54,7 @@ const UpdateOrder = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
+      <ToastContainer position="bottom-right" />
       <h2 className="text-2xl font-semibold mb-4">Edit Order</h2>
       <form onSubmit={handleUpdate} className="space-y-4">
         {[

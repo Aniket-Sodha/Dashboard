@@ -3,6 +3,7 @@ import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { app } from "./firebase";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const db = getFirestore(app);
 
@@ -12,7 +13,7 @@ const AddCategory = () => {
   const [loading, setLoading] = useState(false);
 
   const inputRef = useRef();
-
+  const navigate = useNavigate();
   const handleAddCategory = async (e) => {
     e.preventDefault();
 
@@ -24,7 +25,6 @@ const AddCategory = () => {
     setLoading(true);
 
     try {
-   
       const formData = new FormData();
       formData.append("file", categoryImg);
       formData.append("upload_preset", "dashboard");
@@ -36,18 +36,19 @@ const AddCategory = () => {
 
       const imageUrl = res.data.secure_url;
 
- 
       await addDoc(collection(db, "category"), {
         name: categoryName,
         image: imageUrl,
-
       });
 
       toast.success("Category added successfully!");
 
+      setTimeout(() => {
+        setCategoryName("");
+        setCategoryImg(null);
+        navigate("/category");
+      }, 1000);
 
-      setCategoryName("");
-      setCategoryImg(null);
       inputRef.current.value = "";
     } catch (error) {
       toast.error("Error adding category");
@@ -59,12 +60,17 @@ const AddCategory = () => {
 
   return (
     <div className="w-xl lg:max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-md mt-10">
-      <ToastContainer />
-      <h2 className="text-2xl font-semibold mb-6 text-gray-800">Add Category</h2>
+      <ToastContainer position="bottom-right" />
+      <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+        Add Category
+      </h2>
 
       <form onSubmit={handleAddCategory}>
         <div className="mb-4">
-          <label htmlFor="category" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="category"
+            className="block text-gray-700 font-medium mb-2"
+          >
             Category Name
           </label>
           <input
@@ -76,7 +82,10 @@ const AddCategory = () => {
             className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
           />
 
-          <label htmlFor="category-img" className="block text-gray-700 font-medium mb-2">
+          <label
+            htmlFor="category-img"
+            className="block text-gray-700 font-medium mb-2"
+          >
             Category Image
           </label>
           <input

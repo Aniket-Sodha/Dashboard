@@ -61,9 +61,13 @@ const UpdateCategory = () => {
         name: categoryName,
         image: imageUrl,
       });
-
-      navigate("/categories"); 
       toast.success("Category updated!");
+      setTimeout(()=> { 
+        setCategoryName("")
+       
+      navigate("/category")
+       } , 1000);
+     
     } catch (err) {
       toast.error("Update failed");
       console.error(err);
@@ -74,7 +78,7 @@ const UpdateCategory = () => {
 
   return (
     <div className="w-xl lg:max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-md mt-10">
-      <ToastContainer />
+      <ToastContainer position="bottom-right"/>
       <h2 className="text-2xl font-semibold mb-6 text-gray-800">Edit Category</h2>
 
       <form onSubmit={handleUpdateCategory}>

@@ -88,7 +88,7 @@ let ShowCategory = () => {
                 onClick={() => handleEdit(cat.id)}
                 className="text-blue-600 hover:text-blue-800"
               >
-                <FaEdit />
+                <FaEdit className="cursor-pointer text-xl" />
               </button>
             </div>
             <div>
@@ -96,7 +96,7 @@ let ShowCategory = () => {
                 onClick={() => handleDelete(cat.id)}
                 className="text-red-600 hover:text-red-800"
               >
-                <MdDelete />
+                <MdDelete className="cursor-pointer text-xl" />
               </button>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { MdDeleteForever } from "react-icons/md";
 
 import { deleteDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const db = getFirestore(app);
 
@@ -34,7 +35,11 @@ const handleEdit = (id) => {
     try {
       await deleteDoc(doc(db, "products", id));
       // setProducts(products.filter((product) => product.id !== id));
-      fetchData();
+      toast.success("Product deleted successfully");
+      setTimeout(
+          fetchData()
+      , timeout = 1000 );
+    
     } catch (error) {
       console.error("Error deleting product:", error);
     }
@@ -43,6 +48,9 @@ const handleEdit = (id) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  console.log("Products:", products);
+  
 
   return (
     <div className="p-8">
@@ -68,7 +76,7 @@ const handleEdit = (id) => {
           <TableLoading />
         ) : (
           <>
-            {products.map((product, index) => (
+            {Array.isArray(products) && products.map((product, index) => (
               <div
                 key={index}
                 className="grid grid-cols-9 px-4  py-3 border-b text-sm bg-white hover:bg-gray-50 items-center justify-center"
@@ -83,10 +91,10 @@ const handleEdit = (id) => {
                 <div className=" break-words">{product.retail}</div>
                 <div className=" break-words">{product.mrp}</div>
                 <div className="px-2 text-xl " onClick={() => handleEdit(product.id)}>
-                  <FaEdit />
+                  <FaEdit className="cursor-pointer"/>
                 </div>
                 <div className=" px-3 text-2xl">
-                  <MdDeleteForever onClick={() => handleDelete(product.id)} />
+                  <MdDeleteForever onClick={() => handleDelete(product.id)} className="cursor-pointer" />
                  
                 </div>
               </div>
