@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { use, useEffect, useState } from "react";
+import { getFirestore, collection, getDocs, where, query } from "firebase/firestore";
 import { app } from "./firebase"; // your Firebase config
 import { FaEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
@@ -7,8 +7,12 @@ import { MdDeleteForever } from "react-icons/md";
 import { deleteDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const db = getFirestore(app);
+const auth = getAuth(app);
+const user = auth.currentUser;
+
 
 
 
@@ -16,40 +20,54 @@ let ShowProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+// to generate the edit link
 const handleEdit = (id) => {
   navigate(`/edit/${id}`);
 };
 
-  const fetchData = async () => {
-    const querySnapshot = await getDocs(collection(db, "products"));
-    const items = [];
-    querySnapshot.forEach((doc) => {
-      items.push({ id: doc.id, ...doc.data() });
-    });
-    setProducts(items);
 
-    setLoading(false); 
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await deleteDoc(doc(db, "products", id));
-      // setProducts(products.filter((product) => product.id !== id));
-      toast.success("Product deleted successfully");
-      setTimeout(
-          fetchData()
-      , timeout = 1000 );
+const fetchData = async () => {
+  onAuthStateChanged(auth, async (user) => {
     
-    } catch (error) {
-      console.error("Error deleting product:", error);
+    if (user) {
+     
+     
+     const productsRef = collection(db, "products");
+        const q = query(productsRef, where("uid", "==", user.uid)); // If you want to filter by uid, import and use 'where' from firestore
+
+      const querySnapshot = await getDocs(q);
+      const items = [];
+      querySnapshot.forEach((doc) => {
+        items.push({ id: doc.id, ...doc.data() });
+      });
+      setProducts(items);
+      setLoading(false);
+    } else {
+      setProducts([]);
+      setLoading(false);
     }
-  };
+  });
+};
+
+const handleDelete = async (id) => {
+  try {
+    await deleteDoc(doc(db, "products", id));
+    toast.success("Product deleted successfully");
+    setTimeout(() => {
+      fetchData();
+    }, 1000);
+  } catch (error) {
+    toast.error("Failed to delete product");
+  }
+};
 
   useEffect(() => {
+     
     fetchData();
   }, []);
 
-  console.log("Products:", products);
+  // console.log("Products:", products);
   
 
   return (

@@ -50,18 +50,7 @@ const AddItemGroup = ({ open, handleClose }) => {
     }
   };
 
-  // to fetch item groups
-   useEffect(() => {
-  const feachItemGroups = async () => {
-  const querySnapshot = await getDocs(collection(db, "itemGroups"));
-  const items = [];
-  querySnapshot.forEach((doc) => {
-  items.push({ id: doc.id, ...doc.data() });
-});
-  }
- 
-    feachItemGroups();  },[]);
-    console.log(itemGroup);
+
     return (
     <Modal
       open={open}
@@ -69,6 +58,7 @@ const AddItemGroup = ({ open, handleClose }) => {
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
+    
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
           Add Item Group

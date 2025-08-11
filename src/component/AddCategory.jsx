@@ -1,16 +1,37 @@
-import { useState, useRef } from "react";
+import { useState, useRef, use, useEffect } from "react";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { app } from "./firebase";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const db = getFirestore(app);
+const auth = getAuth(app);
+const user = auth.currentUser;
+
+
 
 const AddCategory = () => {
+  const [uid, setUid] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [categoryImg, setCategoryImg] = useState(null);
   const [loading, setLoading] = useState(false);
+ 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUid(user.uid);
+        console.log(uid)
+      } else {
+        console.log("No user is logged in");
+        setUid(null);
+      }
+    });
+
+    // Cleanup the listener when component unmounts
+    return () => unsubscribe();
+  }, [auth]);
 
   const inputRef = useRef();
   const navigate = useNavigate();
@@ -37,6 +58,7 @@ const AddCategory = () => {
       const imageUrl = res.data.secure_url;
 
       await addDoc(collection(db, "category"), {
+        uid: uid,
         name: categoryName,
         image: imageUrl,
       });

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {app} from "./firebase";
-import { addDoc, collection, getFirestore,  } from "firebase/firestore";
+import { addDoc, collection, getFirestore, getDocs } from "firebase/firestore";
 import {
   Modal,
   Box,
@@ -50,6 +50,10 @@ const AddBrand = ({ open, handleClose }) => {
         toast.error("Failed to add brand.");
       }
     };
+
+
+
+
   return (
     <>
     <Modal

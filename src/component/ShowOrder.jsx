@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 import { app } from "./firebase"; // your Firebase config
 import { useNavigate } from "react-router-dom";
 import { MdDeleteForever } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const db = getFirestore(app);
+  const auth = getAuth(app);
+    const user = auth.currentUser;
 
 const ShowOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -13,13 +16,19 @@ const ShowOrder = () => {
   const navigate = useNavigate();
 
   const fetchOrders = async () => {
-    const snapshot = await getDocs(collection(db, "orders"));
+  onAuthStateChanged(auth, async (user) => {
+  if(user){
+    const oredersRef = collection(db, "orders");
+    const q =  query(oredersRef , where("uid", "==", user.uid));
+    const snapshot = await getDocs(q);
     const orderList = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
     setOrders(orderList);
     setLoading(false); 
+  }
+})
   };
 
   const handleDelete = async (id) => {

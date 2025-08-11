@@ -46,7 +46,7 @@ const UpdateOrder = () => {
       const docRef = doc(db, "orders", id);
       await updateDoc(docRef, formData);
       toast.success("Order updated successfully!");
-      navigate("/updateorder");
+      navigate("/orders");
     } catch (error) {
       console.error("Error updating order:", error);
     }
@@ -73,7 +73,7 @@ const UpdateOrder = () => {
               value={formData[name]}
               onChange={handleChange}
               required
-              className="w-full border px-3 py-2 rounded "
+              className="w-full border px-3 py-2 rounded"
             />
           </div>
         ))}

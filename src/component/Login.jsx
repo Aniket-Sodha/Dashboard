@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import log from "./Images/Login.jpg";
 import { toast, ToastContainer } from "react-toastify";
-import { isValidElement, useState } from "react";
+import { isValidElement, use, useState } from "react";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -14,15 +14,15 @@ import { FcGoogle } from "react-icons/fc";
 
 let Login = () => {
   const auth = getAuth(app);
+
   const googleProvider = new GoogleAuthProvider();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState();
   const nv = useNavigate();
-  
 
   // check
-  const handleLogin =  (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -30,10 +30,8 @@ let Login = () => {
       return;
     }
 
- 
-
     // Sign in with email and password
-     signInWithEmailAndPassword(auth, email, password)
+    signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // console.log("Logged in:", userCredential);
         toast.success("Login successful");
@@ -50,13 +48,11 @@ let Login = () => {
       toast.success("Login successful");
       setTimeout(() => nv("/Dashboard"), 1000);
     });
-    
- 
   };
 
   return (
     <div className="h-full w-full flex justify-center items-center bg-gray-100 px-4 ">
-            <ToastContainer position="bottom-right" />
+      <ToastContainer position="bottom-right" />
       <div className="flex flex-col md:flex-row w-full max-w-5xl relative bg-white rounded-2xl overflow-hidden shadow-lg">
         <div className=" lg:w-1/2 md:w-full md:h-full ">
           <img

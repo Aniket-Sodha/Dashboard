@@ -16,9 +16,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 
+
+
+
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [currentIndex, setCurrentIndex] = useState(null);
   const nv = useNavigate();
+
 
   const sidebarArr = [
     { icon: <MdSpaceDashboard />, name: "Dashboard", navigate: "/dashboard" },
@@ -40,7 +44,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { icon: <GiShoppingBag />, name: "Orders", navigate: "/orders" },
     { icon: <AiFillProduct />, name: "Products", navigate: "/products" },
     { icon: <FaBoxes />, name: "Category", navigate: "/category" },
-    { icon: <IoNotifications />, name: "Notification" },
+    { icon: <IoNotifications/>  , name: "Notification" },
     { icon: <IoMdSettings />, name: "Setting" , navigate: "/setting" ,   },
   ];
 

@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { app } from "./firebase"; // your Firebase config
 import { toast, ToastContainer } from "react-toastify"; // optional for feedback
 import { useNavigate } from "react-router-dom";
+import { getAuth , onAuthStateChanged} from "firebase/auth";
 
 const db = getFirestore(app);
+const auth = getAuth(app);
+const user = auth.currentUser;
+
+
 
 const AddOrder = () => {
   const [orderData, setOrderData] = useState({
+    uid:"",
     customerName: "",
     product: "",
     quantity: "",
@@ -15,7 +21,23 @@ const AddOrder = () => {
     address: "",
   });
 const navigate = useNavigate();
+
+
+// handle user specific data
+     useEffect(() => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {  
+          const uid = user.uid;
+
+          setOrderData((orderData) => ({ ...orderData, uid: uid }));   
+
+        } else {  
+          console.log("No user is logged in");
+        }
+      });
+        }, []);
   const handleChange = (e) => {
+    
     setOrderData({
       ...orderData,
       [e.target.name]: e.target.value,
@@ -26,10 +48,13 @@ const navigate = useNavigate();
     e.preventDefault();
 
     try {
+
       await addDoc(collection(db, "orders"), {
+      // Ensure the uid is set from the authenticated user
         ...orderData,
  
       });
+
 
       toast.success("Order placed successfully!");
       setTimeout(() => {

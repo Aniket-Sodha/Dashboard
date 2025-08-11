@@ -1,24 +1,26 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import img from "./Images/admin.jpg";
 import { app } from "./firebase";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, getDoc } from "firebase/firestore";
 import { toast, ToastContainer } from "react-toastify";
-import firebase from "firebase/compat/app";
+// import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaSquarePlus } from "react-icons/fa6";
 import axios from "axios";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
+
 import AddItemGroup from "./AddItemGroup";
 import AddBrand from "./AddBrand";
 import { Autocomplete, TextField } from "@mui/material";
+import UpdateProduct from "./UpdateProduct";
+import { useDropdownData } from "./store/ProductContext";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const AddProduct = () => {
   const [data, setData] = useState({
+    uid:"",
     itemGroup: "",
     brand: "",
     codeNo: "",
@@ -37,6 +39,25 @@ const AddProduct = () => {
     ingredients: "",
     benefits: "",
   });
+
+  //show user specific data 
+    const auth = getAuth(app);
+      const user = auth.currentUser;
+
+
+        useEffect(() => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {  
+          const uid = user.uid;
+          setData((data) => ({ ...data, uid: uid }));   
+          console.log(uid)  
+        } else {  
+          console.log("No user is logged in");
+        }
+      });
+        }, []);
+
+
   // const [isOpen, setIsOpen] = useState(false);
   const db = getFirestore(app);
   const navigate = useNavigate();
@@ -47,6 +68,13 @@ const AddProduct = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [itemGroup, setItemGroup] = useState(false);
   const [brand, setBrand] = useState(false);
+
+  //open - close menu
+  // const [openItemGroup, setopenItemGroup] = useState(false);
+
+  //context provider
+  const { itemGroups, brands } = useDropdownData();
+
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -70,6 +98,34 @@ const AddProduct = () => {
     }
   }, [id]);
 
+  // // to fetch item groups
+  // useEffect(() => {
+  //   const feachItemGroups = async () => {
+  //     const querySnapshot = await getDocs(collection(db, "itemGroups"));
+  //     const items = [];
+  //     querySnapshot.forEach((doc) => {
+  //       items.push({ id: doc.id, ...doc.data() });
+  //       setItemGroup(items);
+  //     });
+  //   };
+
+  //   feachItemGroups();
+  // }, [itemGroups]);
+
+  // // to fetch brands
+  // useEffect(() => {
+  //   const feachBrand = async () => {
+  //     const querySnapshot = await getDocs(collection(db, "brands"));
+  //     const items = [];
+  //     querySnapshot.forEach((doc) => {
+  //       items.push({ id: doc.id, ...doc.data() });
+  //       setBrand(items);
+  //     });
+  //   };
+
+  //   feachBrand();
+  // }, []);
+
   const handleImageAdd = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -85,7 +141,7 @@ const AddProduct = () => {
         setImages((prev) => [...prev, res.data.url]);
         setCurrentIndex(images.length);
       } catch (err) {
-        console.error("Upload error:", err);
+        // console.error("Upload error:", err);
         toast.error("Image upload failed");
       }
     }
@@ -104,7 +160,7 @@ const AddProduct = () => {
         navigate("/products");
       }, 1500);
     } catch (error) {
-      console.error("Error saving product:", error);
+      // console.error("Error saving product:", error);
       toast.error("Failed to save product");
     }
   };
@@ -135,6 +191,8 @@ const AddProduct = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [zoom, setZoom] = useState(1);
   const inputref = useRef();
+
+  
 
   // Delete current image
   const handleDelete = () => {
@@ -190,6 +248,7 @@ const AddProduct = () => {
               },
             }}
           >
+        
             <MenuItem
               onClick={() => {
                 setItemGroup(true);
@@ -215,7 +274,8 @@ const AddProduct = () => {
           <AddBrand open={brand} handleClose={() => setBrand(false)} />
         </div>
       </div>
-
+ 
+      {/* // add product form */}
       <div className="space-y-5 flex w-full xl:flex-row flex-col  rounded-2xl shadow-md px-3">
         <form onSubmit={handleSubmit}>
           <div className="space-y-5 flex w-full xl:flex-row flex-col ">
@@ -228,25 +288,36 @@ const AddProduct = () => {
                 >
                   Item Group
                 </label>
+
                 <Autocomplete
                   className="w-full"
                   id="free-solo-demo"
                   size="small"
                   freeSolo
                   options={itemGroups.map((items) => items.itemName)}
-                  renderInput={(params) => (  
-                    <TextField {...params} placeholder="Enter Item Group" name="itemGroup" onChange={(e) =>
-                    setData({ ...data, [e.target.name]: e.target.value})
-                  } />
+                  onInputChange={(_, value) => {
+                    setData({ ...data, itemGroup: value });
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Enter Item Group"
+                      name="itemGroup"
+                      value={data.itemGroup}
+                      onChange={(e) => {
+                        // console.log(e.target.value);
+
+                        setData({ ...data, [e.target.name]: e.target.value });
+                      }}
+                    />
                   )}
                 />
-                
               </div>
 
               {/* Description */}
               <div className="flex xl:flex-row flex-col xl:items-center gap-3 mr-2 mb-4  ">
                 <label
-                  className=" font-medium text-lg text-nowrap lg:w-98"
+                  className=" font-medium text-lg text-nowr ap lg:w-98"
                   htmlFor="brand"
                 >
                   Brand{" "}
@@ -257,10 +328,14 @@ const AddProduct = () => {
                   size="small"
                   freeSolo
                   options={brands.map((items) => items.brandName)}
+                  onInputChange={(_, value) => {
+                    setData({ ...data, brand: value });
+                  }}
                   renderInput={(params) => (
                     <TextField {...params} placeholder="Enter Brand" />
                   )}
                 />
+
                 <label
                   className=" font-medium text-lg text-nowrap "
                   htmlFor="codeNo"
@@ -601,19 +676,5 @@ const AddProduct = () => {
     </>
   );
 };
-const itemGroups = [
-  { itemName: "T.V." },
-  { itemName: "Mobile" },
-  { itemName: "Cosmetics" },
-  { itemName: "Fashion" },
-];
-
-const brands = [
-  { brandName: "Samsang" },
-  { brandName: "Apple" },
-  { brandName: "Zara" },
-  { brandName: "L’Oréal" },
-  { brandName: "Sony" },
-];
 
 export default AddProduct;

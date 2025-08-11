@@ -20,6 +20,7 @@ let Navbar = ({ isOpen, setIsOpen }) => {
       if (currentUser) {
         // console.log("User is logged in:", currentUser);
         setUser(currentUser);
+   
       } else {
         // console.log("No user is logged in");
         nv("/");
@@ -27,6 +28,7 @@ let Navbar = ({ isOpen, setIsOpen }) => {
       }
     });
   }, [auth, nv]);
+
   return (
     <div className=" flex items-center shadow-md shadow-gray-200 w-full py-2">
       <div className="block lg:hidden ml-5">

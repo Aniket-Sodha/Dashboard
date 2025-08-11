@@ -8,11 +8,16 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  query,
+  where,
 } from "firebase/firestore";
 import { app } from "./firebase";
 import defaultImg from "./Images/admin.jpg";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const db = getFirestore(app);
+const auth = getAuth(app);
+const user = auth.currentUser;
 
 let ShowCategory = () => {
   const navigate = useNavigate();
@@ -21,18 +26,22 @@ let ShowCategory = () => {
 
   const fetchCategories = async () => {
     setLoading(true); // start loading
-    try {
-      const snapshot = await getDocs(collection(db, "category"));
-      const list = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCategories(list);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    } finally {
-      setLoading(false); // stop loading
-    }
+
+    onAuthStateChanged(auth, async (user) => {
+
+      if (user) {
+        const categoryRef = collection(db, "category");
+        const q = query(categoryRef, where("uid", "==", user.uid));
+        const snapshot = await getDocs(q);
+        const list = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setCategories(list);
+        setLoading(false); // stop loading
+      }
+    });
   };
 
   useEffect(() => {

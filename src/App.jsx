@@ -20,14 +20,18 @@ import Register from "./component/Register";
 import { ToastContainer } from "react-toastify";
 import Setting from "./component/Setting";
 import AddProduct from "./component/AddProduct";
+import { DropdownDataContext } from "./component/store/ProductContext";
 
 function App() {
   const path = useLocation();
   const isPath = ["/", "/register"].includes(path.pathname);
   const [isOpen, setIsOpen] = useState(false);
+  const [itemGroups, setItemGroups] = useState([]);
+  const [brands, setBrands] = useState([]);
 
 
   return (
+        
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
       {!isPath && (
@@ -54,8 +58,8 @@ function App() {
             <Route path="/Dashboard" element={<Content />} />
             <Route path="/addcategory" element={<AddCategory />} />
             <Route path="/edit-category/:id" element={<UpdateCategory />} />
-            <Route path="/edit/:id" element={<UpdateProduct />} />
-            <Route path="/addproduct" element={<AddProduct />} />
+            <Route path="/edit/:id" element={<UpdateProduct itemGroups={itemGroups} brands={brands}/>} />
+            <Route path="/addproduct" element={<AddProduct itemGroups={itemGroups} brands={brands}/>} />
             <Route path="/addorder" element={<AddOrder />} />
             <Route path="/editorder/:id" element={<UpdateOrder />} />
             <Route path="/orders" element={<ShowOrder />} />
@@ -63,9 +67,11 @@ function App() {
             <Route path="/category" element={<ShowCategory />} />
             <Route path="/setting" element={<Setting />} />
           </Routes>
+
         </div>
       </div>
     </div>
+    
   );
 }
 

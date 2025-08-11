@@ -7,6 +7,11 @@ import { toast, ToastContainer } from "react-toastify";
 import firebase from "firebase/compat/app";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { Autocomplete, TextField } from "@mui/material";
+import { useDropdownData } from "./store/ProductContext";
+
+
+
 
 const UpdateProduct = () => {
   const [data, setData] = useState({
@@ -27,6 +32,8 @@ const UpdateProduct = () => {
     image: [],
   });
 
+  const { itemGroups, brands, } = useDropdownData();
+
   const db = getFirestore(app);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -35,6 +42,9 @@ const UpdateProduct = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [zoom, setZoom] = useState(1);
   const inputref = useRef();
+
+  // const [itemGroups, setItemGroups] = useState(false);
+  // const [brands, setBrands] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -69,25 +79,25 @@ const UpdateProduct = () => {
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
 
-  const handleImageAdd = async(e) => {
+  const handleImageAdd = async (e) => {
     const file = e.target.files[0];
     if (file) {
-        try {
-            const formDataUpload = new FormData();
-            formDataUpload.append("file", file);
-            formDataUpload.append("upload_preset", "dashboard");
-      
-            const res = await axios.post(
-              "https://api.cloudinary.com/v1_1/djuvvurva/image/upload",
-              formDataUpload
-            );
-      
-            setImages((prev) => [...prev, res.data.url]);
-            setCurrentIndex(images.length);
-          } catch (err) {
-            console.error("Upload error:", err);
-            toast.error("Image upload failed");
-          }
+      try {
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", file);
+        formDataUpload.append("upload_preset", "dashboard");
+
+        const res = await axios.post(
+          "https://api.cloudinary.com/v1_1/djuvvurva/image/upload",
+          formDataUpload
+        );
+
+        setImages((prev) => [...prev, res.data.url]);
+        setCurrentIndex(images.length);
+      } catch (err) {
+        // console.error("Upload error:", err);
+        toast.error("Image upload failed");
+      }
     }
   };
 
@@ -98,16 +108,15 @@ const UpdateProduct = () => {
       if (id) {
         await updateDoc(doc(db, "products", id), payload);
         toast.success("Product updated successfully");
-      } 
-      setTimeout(() => {
-      clearData()
-      navigate("/products");},1000);
+      }
+      clearData();
+      navigate("/products");
     } catch (error) {
-      console.error("Error saving product:", error);
+      // console.error("Error saving product:", error);
+
       toast.error("Failed to save product");
     }
   };
-
 
   let clearData = () => {
     setData({
@@ -165,12 +174,6 @@ const UpdateProduct = () => {
     setZoom((prevZoom) => (prevZoom === 1 ? 1.5 : 1)); // toggle zoom
   };
 
-  // // code end of image viewer
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-  // };
-  console.log(data);
   return (
     <>
       <ToastContainer position="bottom-right" />
@@ -192,16 +195,24 @@ const UpdateProduct = () => {
                 >
                   Item Group
                 </label>
-                <input
-                  type="text"
-                  name="itemGroup"
+                <Autocomplete
+                  className="w-full"
+                  id="free-solo-demo"
+                  size="small"
+                  freeSolo
+                  options={(Array.isArray(itemGroups) ? itemGroups : []).map(
+                    (item) => item.itemName
+                  )}
                   value={data.itemGroup}
-                  onChange={(e) =>
-                    setData({ ...data, [e.target.name]: e.target.value })
+                  onChange={(_, value) =>
+                    setData({ ...data, itemGroup: value || "" })
                   }
-                  id="itemGroup"
-                  placeholder="Enter Item Group"
-                  className=" lg:w-full p-2  border border-gray-300 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onInputChange={(_, value) =>
+                    setData({ ...data, itemGroup: value })
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params}  fullWidth />
+                  )}
                 />
               </div>
 
@@ -213,16 +224,24 @@ const UpdateProduct = () => {
                 >
                   Brand{" "}
                 </label>
-                <input
-                  type="text"
-                  name="brand"
+                <Autocomplete
+                  className="w-full"
+                  id="free-solo-demo"
+                  size="small"
+                  freeSolo
+                  options={(Array.isArray(brands) ? brands : []).map(
+                    (item) => item.brandName
+                  )}
                   value={data.brand}
-                  onChange={(e) =>
-                    setData({ ...data, [e.target.name]: e.target.value })
+                  onChange={(_, value) =>
+                    setData({ ...data, brand: value || "" })
                   }
-                  id="brand"
-                  placeholder="Enter Item Group"
-                  className=" w-full p-2 border border-gray-300 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onInputChange={(_, value) =>
+                    setData({ ...data, brand: value })
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth />
+                  )}
                 />
                 <label
                   className=" font-medium text-lg text-nowrap "
@@ -521,6 +540,7 @@ const UpdateProduct = () => {
           </div>
         </form>
       </div>
+
     </>
   );
 };

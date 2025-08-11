@@ -4,6 +4,8 @@ import { toast, ToastContainer } from "react-toastify";
 import { useState } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { app } from "./firebase";
+import Lottie from "lottie-react";
+import lotty from "./Login.json"
 
 let Register = () => {
   const auth = getAuth(app);
@@ -73,13 +75,15 @@ let Register = () => {
     <div className="h-full w-full flex justify-center items-center bg-gray-100 px-4 ">
       <ToastContainer position="bottom-right" />
       <div className="flex flex-col md:flex-row w-full max-w-5xl bg-white rounded-2xl overflow-hidden shadow-lg">
-        <div className=" lg:w-1/2 md:w-full md:h-full ">
-          <img
+        <div className=" lg:w-1/2 lg:h-1/2 md:w-full md:h-full ">
+          {/* <img
             src={log}
             alt="Login Visual"
-            className="h-full w-full object-cover sm:w-full sm:h-1/2 "
-          />
-        </div>
+            className=" "
+          /> */}
+
+          <Lottie animationData={lotty} loop={true}   className="h-1/2 w-full object-cover sm:w-full sm:h-1/2" /></div>
+
 
         <div className="w-full lg:w-1/2  bg-[#48A3DA] p-8 flex">
           <form
