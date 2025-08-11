@@ -50,7 +50,7 @@ const AddProduct = () => {
         if (user) {  
           const uid = user.uid;
           setData((data) => ({ ...data, uid: uid }));   
-          console.log(uid)  
+     
         } else {  
           console.log("No user is logged in");
         }

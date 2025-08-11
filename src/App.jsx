@@ -45,7 +45,8 @@ function App() {
       )}
 
       {/* Main Content Area */}
-      <div className={`flex flex-col w-full`}>
+
+      <div className={`flex flex-col w-full`} onClick={() => setIsOpen(!isOpen)}>
         {!isPath && (
           <Navbar isOpen={isOpen} setIsOpen={() => setIsOpen(!isOpen)}   />
         )}

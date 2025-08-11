@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [currentIndex, setCurrentIndex] = useState(null);
   const nv = useNavigate();
+ 
 
 
   const sidebarArr = [
@@ -64,7 +65,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
         {sidebarArr.map((item, index) =>
           item.submenu ? (
-            <div key={index} className={`mb-4   `}>
+            <div key={index} className={`mb-4   `} >
               <details className="lg:w-full list-none">
                 <summary
                   onClick={() => {
@@ -82,10 +83,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 </summary>
                 <ul className="pl-2 text-sm mt-2 space-y-1">
                   {item.submenu.map((subItem, subIndex) => (
+
                     <li
+             
                       key={subIndex}
                       onClick={() => {
                         nv(subItem.navigate);
+                        setIsOpen(false)
                       }}
                       className={` text-gray-400 hover:text-white cursor-pointer px-8`}
                     >
@@ -102,6 +106,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               onClick={() => {
                 setCurrentIndex(index);
                 nv(item.navigate);
+                setIsOpen(!isOpen);
               }}
               className={`${
                 currentIndex === index &&
